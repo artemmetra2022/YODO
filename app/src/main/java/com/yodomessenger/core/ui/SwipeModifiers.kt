@@ -5,35 +5,43 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 
 /**
- * Свайп влево (dragAmount < 0) для ответа на сообщение.
- * @param threshold Порог срабатывания в пикселях (по умолчанию 150f)
+ * Свайп влево для ответа на сообщение.
  */
 fun Modifier.swipeToReply(
     threshold: Float = 150f,
     onReply: () -> Unit
 ): Modifier = this.pointerInput(Unit) {
+    var totalDrag = 0f
     detectHorizontalDragGestures(
-        onDragEnd = { _, dragAmount ->
-            if (dragAmount < -threshold) {
+        onDragEnd = {
+            if (totalDrag < -threshold) {
                 onReply()
             }
+            totalDrag = 0f // Сброс после завершения жеста
+        },
+        onHorizontalDrag = { _, dragAmount ->
+            totalDrag += dragAmount
         }
-    ) { _, _ -> }
+    )
 }
 
 /**
- * Свайп слева направо (dragAmount > 0) для возврата на предыдущий экран.
- * Имитирует системный жест "Edge Swipe".
+ * Свайп слева направо для возврата назад (Edge Swipe).
  */
 fun Modifier.swipeToGoBack(
     threshold: Float = 100f,
     onGoBack: () -> Unit
 ): Modifier = this.pointerInput(Unit) {
+    var totalDrag = 0f
     detectHorizontalDragGestures(
-        onDragEnd = { _, dragAmount ->
-            if (dragAmount > threshold) {
+        onDragEnd = {
+            if (totalDrag > threshold) {
                 onGoBack()
             }
+            totalDrag = 0f // Сброс после завершения жеста
+        },
+        onHorizontalDrag = { _, dragAmount ->
+            totalDrag += dragAmount
         }
-    ) { _, _ -> }
+    )
 }
